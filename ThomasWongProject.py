@@ -20,32 +20,33 @@ print(train['SalePrice'])
 
 # Lets start with something that take 2 number values which should not need to take much transforming 
 # Then lets take one thing in that i will transform usig ohe.
-X = train[['LotArea','OverallQual','OverallCond','HeatingQC','LotShape','KitchenQual','Neighborhood','CentralAir']]
+X = train[['LotArea','OverallQual','OverallCond','HeatingQC','KitchenQual','Neighborhood','GarageFinish']]
 y = train['SalePrice']
 # Two ord values in the overalls 
 # Lets we can just plug in 
 # lot shape need to use an unordered dummy value attacheted to it
 # an idea could be to squar all the submission so we could have a better model 
-
-X['LotArea^2'] = X['LotArea']**2
-X['OverallQual^2'] = X['OverallQual']**2
-X['OverallCond^2'] = X['OverallCond']**2
+# Squraing the varibles does not work.
+# X['LotArea^2'] = X['LotArea']**2
+# X['OverallQual^2'] = X['OverallQual']**2
+# X['OverallCond^2'] = X['OverallCond']**2
 
 # Just checking if any of the values from my data have gone missing 
 print(train.columns[train.isna().sum()>0])
 # There not so we should be fine
 # This part should be for the dummy values that dont matter 
 onehot = OneHotEncoder(drop = 'first')
-onehot.fit_transform(train[['LotShape','Neighborhood','CentralAir']]).todense()
+#onehot.fit_transform(train[['LotShape','Neighborhood',]]).todense()
+onehot.fit_transform(train[['Neighborhood','GarageFinish']]).todense()
 onehot.get_feature_names_out()
 # This part should be for the values that are actually important to be ordered
 cats = ['Po','Fa','TA','Gd','Ex']
-ordinal = OrdinalEncoder(categories = [cats, cats])
+ordinal = OrdinalEncoder(categories = [cats, cats,])
 # ordinal.fit_transform(train[['HeatingQC','KitchenQual']])
 # We should start putting everything together, this will require us to use both a transformer and the a piple as this is a muli model
 thing = make_column_transformer(
-    (onehot, ['LotShape','Neighborhood','CentralAir']),
-    (ordinal, ['HeatingQC','KitchenQual']),
+    (onehot, ['Neighborhood','GarageFinish']),
+    (ordinal, ['HeatingQC','KitchenQual',]),
     remainder = 'passthrough'
 )
 XT = thing.fit_transform(X)
@@ -66,3 +67,4 @@ val = pipeline.predict(X_valid)
 # this improved our model so lets add more quality stuff to our model 
 print(train.columns)
 # print(train['Neighborhood']) the more diversty we added did great things to our data, lets add more factors into our data 
+# we need to add thing that people can see not thing that people dont see.
